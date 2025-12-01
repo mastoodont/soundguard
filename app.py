@@ -12,12 +12,12 @@ from sklearn.svm import SVC
 
 app = Flask(__name__)
 
-# === Автосоздание модели при первом запуске ===
+# === Auto-create demo model on first run ===
 MODEL_PATH = "model_soundguard.pkl"
 SCALER_PATH = "scaler_soundguard.pkl"
 
 if not os.path.exists(MODEL_PATH):
-    print("Создаём демонстрационную модель 94.3%...")
+    print("Creating a demo model (94.3%)...")
     np.random.seed(42)
     X = np.random.randn(15000, 64)
     y = np.random.choice([0, 1], size=15000, p=[0.25, 0.75])
@@ -25,12 +25,12 @@ if not os.path.exists(MODEL_PATH):
     model = SVC(kernel='rbf', probability=True, C=10, gamma='scale').fit(scaler.transform(X), y)
     joblib.dump(model, MODEL_PATH)
     joblib.dump(scaler, SCALER_PATH)
-    print("Модель создана и сохранена!")
+    print("Model created and saved!")
 
 scaler = joblib.load(SCALER_PATH)
 model = joblib.load(MODEL_PATH)
 
-# Звук бип-буп
+# Beep sound
 BEEP_SOUND = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVeaT0sGooVFRMVEA4QCAgHBQUFBgUEAwMC"
 
 def extract_features(wav_path):
@@ -69,12 +69,11 @@ def analyze():
         os.unlink(temp_path)
 
         prob = model.predict_proba(scaler.transform([features]))[0]
-        normal_pct = prob[1] * 100  # класс 1 = "нормально"
+        normal_pct = prob[1] * 100  # class 1 = "normal"
 
         status = "Engine is in excellent condition!" if normal_pct > 65 else "A malfunction has been detected!"
-faults = ["Turbocharger", "Injectors", "Timing belt", "Crankshaft bearings", "Exhaust system", "Timing chain"]
-fault = "No issues detected" if normal_pct > 70 else np.random.choice(faults)
-
+        faults = ["Turbocharger", "Injectors", "Timing belt", "Crankshaft bearings", "Exhaust system", "Timing chain"]
+        fault = "No issues detected" if normal_pct > 70 else np.random.choice(faults)
 
         return jsonify({
             "status": status,
@@ -83,8 +82,8 @@ fault = "No issues detected" if normal_pct > 70 else np.random.choice(faults)
             "accuracy": 94.3
         })
     except Exception as e:
-        print("Ошибка:", e)
-        return jsonify({"status": "Ошибка обработки", "normal": 50, "fault": "Попробуйте ещё раз"}), 500
+        print("Error:", e)
+        return jsonify({"status": "Processing error", "normal": 50, "fault": "Please try again"}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
