@@ -71,9 +71,10 @@ def analyze():
         prob = model.predict_proba(scaler.transform([features]))[0]
         normal_pct = prob[1] * 100  # класс 1 = "нормально"
 
-        status = "Двигатель в отличном состоянии!" if normal_pct > 65 else "Обнаружена неисправность!"
-        faults = ["Турбина", "Форсунки", "Ремень ГРМ", "Подшипники коленвала", "Выхлопная система", "Цепь ГРМ"]
-        fault = "Нет проблем" if normal_pct > 70 else np.random.choice(faults)
+        status = "Engine is in excellent condition!" if normal_pct > 65 else "A malfunction has been detected!"
+faults = ["Turbocharger", "Injectors", "Timing belt", "Crankshaft bearings", "Exhaust system", "Timing chain"]
+fault = "No issues detected" if normal_pct > 70 else np.random.choice(faults)
+
 
         return jsonify({
             "status": status,
